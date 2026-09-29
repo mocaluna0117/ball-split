@@ -358,7 +358,3 @@ CMake（`cmake -S . -B build && cmake --build build`）でもビルドできる�
 ### 提出した exe の作り方
 
 提出した `ballsim.exe` は、macOS 上で MinGW-w64 を使ってクロスビルドした（`build_windows.sh`）。SDL2 と C++ ランタイムを静的にリンクし、DLL が不要な単体の exe にしている。
-
----
-
-*本資料は提出用の説明資料である。ソースコードは上記のGitHubリポジトリで全文公開している。*
