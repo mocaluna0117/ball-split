@@ -45,7 +45,7 @@ cmake --build build --config Release
 
 `build/ballsim.sln` を Visual Studio で開いてビルドしてもよい。
 Visual Studio 2022 の「フォルダーを開く」で、このフォルダを直接開くこともできる。
-（CMakeLists.txt は macOS の CMake でビルドが通ることを確認済み。Visual Studio でのビルドは未確認）
+（Windows 11 と macOS でビルドが通ることを確認済み）
 
 vcpkg を使わない場合は、SDL2-devel-<version>-VC.zip を展開してその場所を渡す。
 
