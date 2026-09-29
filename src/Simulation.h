@@ -10,7 +10,7 @@ constexpr float ARENA_CX = 500.0f;   // アリーナ中心 X（論理座標）
 constexpr float ARENA_CY = 548.0f;   // アリーナ中心 Y（上部を UI に空ける）
 constexpr float ARENA_R  = 400.0f;   // アリーナ半径
 
-constexpr float BALL_R = 0.9f;            // ボール半径。65536 個で充填率 約 45%
+constexpr float BALL_R = 0.9f;            // ボール半径。65536 個で充填率 約 33%
 constexpr float SPEED  = 240.0f;          // 速さ（px/秒）。向きだけが変わる
 constexpr float DT     = 1.0f / 480.0f;   // 1 ステップの時間
 

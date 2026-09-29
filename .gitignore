@@ -5,9 +5,9 @@ ballsim
 build/
 dist/
 
-# 提出物一式。課題2はソースコード提出不可のため、
-# 配布するバイナリや資料はリポジトリには含めない。
+# 提出用に組み立てる作業フォルダ。配布する exe は GitHub Releases に置く
 Submission/
+release/
 
 # 個人用メモ
 提出手順.md

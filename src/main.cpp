@@ -39,7 +39,7 @@ constexpr int LOGICAL_H = 1000;
 
 constexpr int   MIN_SPEED_SCALE = 1;
 constexpr int   MAX_SPEED_SCALE = 512;
-constexpr int   BASE_SUBSTEPS   = 8;       // 60fps x 4 = 240 ステップ/秒 = 実時間
+constexpr int   BASE_SUBSTEPS   = 8;       // 60fps x 8 = 480 ステップ/秒 = 実時間
 constexpr double FRAME_BUDGET   = 0.012;   // 1 フレームで物理に使ってよい秒数
 
 enum class AppState { Idle, Running, Paused, Finished };
