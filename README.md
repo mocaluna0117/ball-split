@@ -20,7 +20,7 @@ make
 
 ### Windows
 
-ビルド済みの exe を [Releases](https://github.com/mocaluna0117/ball-split/releases/tag/v1.0) に置いてある。
+ビルド済みの exe を [Releases](https://github.com/mocaluna0117/ball-split/releases/tag/v1.1) に置いてある。
 `BallSplit-windows-x64.zip` を展開して `ballsim.exe` をダブルクリックする。
 
 | ファイル | 中身 | 使い方 |

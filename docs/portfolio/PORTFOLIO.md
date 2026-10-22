@@ -7,7 +7,7 @@
 | 氏名 | 木村 大暉 |
 | 区分 | 個人制作（Windows 向けデスクトップアプリ／C++） |
 | ソースコード | https://github.com/mocaluna0117/ball-split |
-| 実行ファイル（bin） | https://github.com/mocaluna0117/ball-split/releases/tag/v1.0 （`BallSplit-windows-x64.zip`） |
+| 実行ファイル（bin） | https://github.com/mocaluna0117/ball-split/releases/tag/v1.1 （`BallSplit-windows-x64.zip`） |
 | 動作紹介動画 | <https://github.com/mocaluna0117/ball-split/blob/main/docs/portfolio/ballsplit-demo.mp4>（約41秒） |
 
 <p align="center">
