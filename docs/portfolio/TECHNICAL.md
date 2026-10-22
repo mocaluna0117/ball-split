@@ -115,7 +115,7 @@ std::vector<Ball> balls;
 | `pendingSplits` | Simulation | `reserve(4096)` | 予約の数による | 分裂の予約 |
 | `normalRects` / `freshRects` | main.cpp | `reserve(65536)` / `reserve(4096)` | 1 MiB（`SDL_FRect` は 16 バイト） | 描画用の矩形 |
 
-**ステップの途中で `balls` が確保し直されることはない。** 分裂の予約は「個数＋予約数＋2 ≤ 65536」のときだけ通る（5章）。`applySplits` が足すのは予約1件につき1個なので、適用後の個数は 65536 を超えず、`reserve(65536)` の容量に収まる。`nextBall.resize(balls.size())` も同じ容量の中で済み、`occupiedCells` の要素数はボール数を超えない。
+**ステップの途中で `balls` が確保し直されることはない。** 分裂の予約は、個数と予約数の合計が 65536 に届かないときだけ通り、残りが1個分なら1個だけ予約する（5章）。`applySplits` が足すのは予約1件につき1個なので、適用後の個数は 65536 を超えず、`reserve(65536)` の容量に収まる。`nextBall.resize(balls.size())` も同じ容量の中で済み、`occupiedCells` の要素数はボール数を超えない。
 
 `pendingSplits` と `freshRects` は 4096 で予約しているだけなので、超えた回には `std::vector` が伸びる。ただし `clear()` は容量を保つので、確保し直しは最大値を更新したときだけ起きる。
 
@@ -226,8 +226,8 @@ for (size_t k = 0; k < occupiedCells.size(); ++k) {
 flowchart TD
   A["dx, dy = b − a<br>distSq = dx² + dy²"] --> B{"distSq が (2r)² 未満か"}
   B -- no --> Z["何もしない"]
-  B -- yes --> C{"1巡目 かつ 両方の cooldown ≤ 0<br>かつ 個数 + 予約数 + 2 ≤ 65536 か"}
-  C -- yes --> D["両方の cooldown = 0.25<br>i, j を pendingSplits に積む<br>押し戻し・反射はしない"]
+  B -- yes --> C{"1巡目 かつ 両方の cooldown ≤ 0<br>かつ 個数 + 予約数 < 65536 か"}
+  C -- yes --> D["両方の cooldown = 0.25<br>i を pendingSplits に積む<br>残りが2個分以上なら j も積む<br>押し戻し・反射はしない"]
   C -- no --> E["d = sqrt(distSq), n = (dx, dy) / d<br>めり込みを半分ずつ押し戻す"]
   E --> F{"vrel = (va − vb)·n が正か"}
   F -- yes --> G["法線成分を交換し<br>両方の速さを 240 に揃える"]
@@ -323,17 +323,18 @@ $$
 分裂は `testPair` の中で「予約」し、走査が終わってから `applySplits` で「適用」する2段階になっている。
 
 ```cpp
-bool canSplit = (splitEnabled &&
-                 a.cooldown <= 0.0f &&
-                 b.cooldown <= 0.0f &&
-                 balls.size() + pendingSplits.size() + 2 <= MAX_BALLS);
+size_t reserved = balls.size() + pendingSplits.size();
+size_t room     = reserved < MAX_BALLS ? MAX_BALLS - reserved : 0;
+bool   ready    = splitEnabled && a.cooldown <= 0.0f && b.cooldown <= 0.0f;
 
-if (canSplit) {
+if (ready && room >= 1) {
     // ここで猶予を立てることが、同じパスでの二重予約の防止も兼ねる
     a.cooldown = SPLIT_COOLDOWN;
     b.cooldown = SPLIT_COOLDOWN;
     pendingSplits.push_back(i);
-    pendingSplits.push_back(j);
+    // 個数は 2 ずつ増えるので、初期個数が奇数だと上限の 1 個手前で
+    // 止まり、上限に届かない。残りが 1 個分なら片方だけ分裂させる。
+    if (room >= 2) pendingSplits.push_back(j);
     return;                       // 分裂するので反射はしない
 }
 ```
@@ -382,7 +383,7 @@ $$
 
 | 量 | 分裂での扱い | 根拠のコード |
 |---|---|---|
-| 個数 | 接触1回で 2 → 4（+2） | `testPair` が2個を予約し、`applySplits` が1件につき1個足す |
+| 個数 | 接触1回で 2 → 4（+2）。上限の直前だけ +1 になることがある | `testPair` が2個を予約し、`applySplits` が1件につき1個足す |
 | 半径 | 子も同じ 0.9 px | 半径は定数 `BALL_R` |
 | 速さ | 子も 240 px/秒 | `randomVelocity` |
 | 位置の重心 | 子2個の中点は親の位置に一致する | 子は親から ± 同じずれに置かれる |
@@ -391,10 +392,9 @@ $$
 
 ### 上限と個数の偶奇
 
-上限の判定は「いまの個数＋予約済み＋今回の2 ≤ 65536」で、超える予約は最初から通さない。終了判定は `isFinished()` の `balls.size() >= MAX_BALLS` である。個数は2ずつしか増えないので偶奇が変わらず、**初期個数が偶数なら、ちょうど 65536 で止まる**。既定の 2 から ←→ で選べる初期個数は 2 の累乗である。
+上限までの残り（`room` = 65536 −「いまの個数＋予約済み」）を見て予約する。残りが2個分以上なら2個とも、1個分なら接触した片方だけを予約し、0 なら予約しない。超える予約は最初から通さないので、個数が 65536 を超えることはない。終了判定は `isFinished()` の `balls.size() >= MAX_BALLS` である。
 
-> [!NOTE]
-> 初期個数を奇数にした場合（`--initial` に奇数を渡すなど）は、個数が 65535 で止まって `isFinished()` が真にならない。検証モードでは `getSimTime() > 20000` の打ち切りで抜ける。
+個数は普段2ずつ増えるので、偶奇が変わらない。片方だけの予約が無いと、初期個数が奇数（`--initial 255` や、`--initial 100` から ← で 50 → 25）のときは個数が 65535 で止まり、`isFinished()` がいつまでも真にならなかった。片方だけの予約はこの最後の1個のためのもので、初期個数が偶数なら起きない。2・3・25・255・256・8192 から始めて、どれもちょうど 65536 で止まり、検証モードの判定が PASS になることを確かめている。
 
 ### 初期配置
 
@@ -490,4 +490,4 @@ $$
 
 ## 8. 本資料について
 
-本資料は、Claude Code（Anthropic）がこのリポジトリのコードを読んで下書きしたものである。数値や設定はコード（2b15d72時点）から引いている。測定結果は作品説明資料6章からの引用である。
+本資料は、Claude Code（Anthropic）がこのリポジトリのコードを読んで下書きしたものである。数値や設定はコード（2b15d72時点）から引いている。5章の上限の扱いは、その後に直した「初期個数が奇数だと終わらない」不具合の修正を反映している。測定結果は作品説明資料6章からの引用である。

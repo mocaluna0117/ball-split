@@ -157,18 +157,20 @@ void Simulation::testPair(size_t i, size_t j)
     // 平方根は使わない。両辺 2 乗しても大小関係は変わらないため。
     if (distSq >= minDistSq) return;
 
-    // 両方とも猶予が切れていて、上限に余裕があるなら分裂させる
-    bool canSplit = (splitEnabled &&
-                     a.cooldown <= 0.0f &&
-                     b.cooldown <= 0.0f &&
-                     balls.size() + pendingSplits.size() + 2 <= MAX_BALLS);
+    // 両方とも猶予が切れていて、上限に余裕があるなら分裂させる。
+    // 1 個の分裂で 1 個増えるので、1 回の衝突では 2 個増える。
+    size_t reserved = balls.size() + pendingSplits.size();
+    size_t room     = reserved < MAX_BALLS ? MAX_BALLS - reserved : 0;
+    bool   ready    = splitEnabled && a.cooldown <= 0.0f && b.cooldown <= 0.0f;
 
-    if (canSplit) {
+    if (ready && room >= 1) {
         // ここで猶予を立てることが、同じパスでの二重予約の防止も兼ねる
         a.cooldown = SPLIT_COOLDOWN;
         b.cooldown = SPLIT_COOLDOWN;
         pendingSplits.push_back(i);
-        pendingSplits.push_back(j);
+        // 個数は 2 ずつ増えるので、初期個数が奇数だと上限の 1 個手前で
+        // 止まり、上限に届かない。残りが 1 個分なら片方だけ分裂させる。
+        if (room >= 2) pendingSplits.push_back(j);
         return;                       // 分裂するので反射はしない
     }
 
