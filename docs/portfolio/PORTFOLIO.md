@@ -304,7 +304,7 @@ verdict          : PASS  (limit 1.00 px)
 - 画面まわりのすべて（状態の管理、ボタン、HUD、5×7のビットマップフォント、描画の一括化、1フレームの物理計算の上限）
 - 検証モード（`--headless`）と画像の保存（`--shot`）
 - Windows 対応（コンソールを開かない構成、Direct3D で円が欠ける問題の回避、クロスビルド）
-- `Makefile`、`CMakeLists.txt`、`build_windows.sh`、`make_submission.sh`、`README.md`、`doc/document.md`、コミットメッセージ
+- `Makefile`、`CMakeLists.txt`、`build_windows.sh`、`README.md`、`doc/document.md`、コミットメッセージ
 
 **自分が担ったこと:** 題材と仕様の決定（円形のアリーナ、2個から分裂して増える、開始・停止・リセット）、上記の前半のコーディング、Windows 11 の実機での動作確認と測定、動作紹介動画の録画。
 

@@ -5,12 +5,8 @@ ballsim
 build/
 dist/
 
-# 提出用に組み立てる作業フォルダ。配布する exe は GitHub Releases に置く
-Submission/
+# 配布する exe は GitHub Releases に置く
 release/
-
-# 個人用メモ
-提出手順.md
 
 # エディタ / OS
 .vscode/
